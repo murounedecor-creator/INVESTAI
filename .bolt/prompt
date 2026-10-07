@@ -1,0 +1,635 @@
+INVESTAI — CONSTITUIÇÃO DO PROJETO
+
+Project Knowledge — v1.0
+
+Status: Documento normativo fechado
+Aplicação: Permanente em todo o projeto InvestAI
+Plataforma de desenvolvimento: Bolt.new
+Idioma principal de desenvolvimento: TypeScript
+
+---
+
+1. Natureza deste documento
+
+Esta Constituição estabelece os princípios técnicos, arquiteturais, contratuais, de segurança, qualidade, rastreabilidade e governança que regem o projeto InvestAI.
+
+Ela não é uma especificação detalhada de implementação.
+
+Sua função é estabelecer regras superiores que não podem ser contrariadas por código, prompts, Skills, Master Specification ou Acceptance Tests.
+
+---
+
+2. Hierarquia normativa
+
+A hierarquia oficial do projeto InvestAI é:
+
+1. Constituição
+2. Master Specification
+3. Acceptance Tests
+4. Implementation Prompts / workflows
+5. Código e implementação
+
+Em caso de conflito, prevalece sempre o nível superior.
+
+Nenhum documento inferior pode autorizar comportamento proibido por documento superior.
+
+Em particular:
+
+- a Master Specification não pode contrariar a Constituição;
+- Acceptance Tests não podem autorizar comportamento contrário à Constituição;
+- prompts não podem alterar contratos superiores;
+- código não pode ser usado como justificativa para contrariar contratos;
+- um teste que contradiga a Constituição representa um CONFLICT, e não uma autorização para alterar a Constituição automaticamente.
+
+A Constituição é a autoridade normativa máxima do projeto.
+
+---
+
+3. Missão técnica
+
+O InvestAI deve produzir análises de investimento:
+
+- rastreáveis;
+- reproduzíveis;
+- semanticamente corretas;
+- baseadas em fontes identificáveis;
+- resistentes a dados ausentes;
+- resistentes a falhas de fontes externas;
+- auditáveis;
+- testáveis;
+- determinísticas quando o contrato exigir determinismo.
+
+O sistema não deve produzir uma aparência de precisão quando a evidência necessária não existe.
+
+---
+
+4. Stack tecnológica constitucional
+
+A stack oficial é:
+
+- Linguagem: TypeScript
+- Backend: Node.js + TypeScript
+- Frontend: React + TypeScript
+- Mobile: Expo / React Native + TypeScript
+- Banco: PostgreSQL
+- Versionamento: GitHub
+- Plataforma de construção: Bolt.new
+
+Supabase é um candidato forte para infraestrutura de banco/backend, mas sua adoção definitiva pertence à Master Specification.
+
+---
+
+5. TypeScript obrigatório
+
+O código principal do InvestAI deve utilizar TypeScript.
+
+Não devem ser introduzidas partes relevantes em JavaScript puro quando o equivalente TypeScript for aplicável.
+
+O uso de "any", casts inseguros ou mecanismos equivalentes deve ser evitado e justificado quando inevitável.
+
+---
+
+6. Contratos antes da implementação
+
+Contratos devem ser definidos antes da implementação correspondente.
+
+Nenhuma implementação deve criar silenciosamente um contrato novo apenas porque isso facilita o desenvolvimento.
+
+Quando uma ambiguidade contratual puder alterar comportamento, o trabalho deve ser interrompido até que a ambiguidade seja resolvida.
+
+---
+
+7. Arquitetura fundamental
+
+A arquitetura conceitual é:
+
+Scheduler → Agents → SourceOrchestrator → SourceExecutor → SourceResult → CollectResult → AgentResult → Database → API → Web/Mobile
+
+Cada camada possui responsabilidade própria.
+
+Uma camada não deve assumir silenciosamente responsabilidades pertencentes a outra.
+
+---
+
+8. Separação de responsabilidades
+
+Scheduler
+
+Orquestra execuções.
+
+Agents
+
+Executam coleta e análise específicas de seu domínio.
+
+SourceOrchestrator
+
+Controla despacho, concorr��ncia, orçamento, grupos e timeout das fontes.
+
+SourceExecutor
+
+Executa o ciclo individual de uma fonte.
+
+SourceResult
+
+Representa o resultado semântico da fonte.
+
+Database
+
+Persiste resultados e falhas segundo contratos definidos.
+
+API
+
+Expõe contratos externos estáveis.
+
+Web/Mobile
+
+Consomem os contratos da API e não devem reproduzir silenciosamente regras de negócio pertencentes ao backend.
+
+---
+
+9. Dados externos nunca são confiáveis por padrão
+
+Toda informação externa deve ser tratada como entrada não confiável.
+
+O sistema deve validar:
+
+- transporte;
+- status HTTP;
+- formato;
+- conteúdo;
+- parsing;
+- normalização;
+- regras de domínio aplicáveis.
+
+Uma resposta recebida não significa automaticamente que os dados sejam válidos.
+
+---
+
+10. Pipeline obrigatório de fontes
+
+O pipeline conceitual é:
+
+COLLECT → PARSE → NORMALIZE → CONTRACT VALIDATION → RESULT
+
+A validação contratual pode ocorrer dentro da normalização ou em uma etapa explicitamente separada quando o contrato exigir.
+
+Não existe obrigação constitucional de criar uma função independente chamada "validate()".
+
+O sistema não deve introduzir artificialmente uma etapa universal de validação apenas para satisfazer esta Constituição.
+
+---
+
+11. Ausência não é zero
+
+Dados ausentes, indisponíveis ou não comprovados não podem ser convertidos silenciosamente em zero.
+
+Isso se aplica especialmente a:
+
+- valores financeiros;
+- dívida;
+- caixa;
+- EBITDA;
+- métricas de mercado;
+- dividendos;
+- indicadores;
+- volumes;
+- quantidades;
+- dados de fontes externas.
+
+Zero somente pode ser utilizado quando o zero for explicitamente comprovado pelo dado ou pelo contrato.
+
+---
+
+12. Falhas devem ser preservadas
+
+Falhas de coleta, parsing, normalização ou fonte externa não podem ser mascaradas como sucesso.
+
+O sistema deve preservar a natureza da falha.
+
+Uma fonte que falhou não deve aparecer como uma fonte que retornou valor válido.
+
+---
+
+13. Estados semânticos
+
+O sistema utiliza estados semânticos explícitos.
+
+Dispatch
+
+- "DISPATCHED"
+- "CANCELLED"
+- "NOT_DISPATCHED"
+
+Normalization
+
+- "OK"
+- "WARN"
+- "FATAL"
+- "NOT_RUN"
+
+Failure Layer
+
+- "NONE"
+- "COLLECTION"
+- "PARSE"
+- "NORMALIZATION"
+
+Estados devem representar fatos reais da execução.
+
+Não devem ser usados apenas como conveniências de implementação.
+
+---
+
+14. SourceResult
+
+O resultado de uma fonte deve preservar, quando aplicável:
+
+- identificação da fonte;
+- estado de dispatch;
+- motivo de dispatch;
+- sucesso ou falha de coleta;
+- sucesso ou falha de parsing;
+- estado de normalização;
+- hash do conteúdo bruto;
+- camada de falha.
+
+Invariante fundamental
+
+Quando:
+
+"collection_ok = true"
+
+então:
+
+"raw_hash" é obrigatório e deve representar o SHA-256 do conteúdo bruto coletado.
+
+Quando:
+
+"collection_ok = false"
+
+"raw_hash" pode ser "null" ou existir quando bytes tiverem sido efetivamente recebidos antes da falha/interrupção, conforme o contrato específico.
+
+---
+
+15. Effective Source
+
+Uma fonte é considerada efetiva somente quando:
+
+"dispatch = DISPATCHED"
+
+e
+
+"collection_ok = true"
+
+e
+
+"parse_ok = true"
+
+e
+
+"normalization ∈ {OK, WARN}"
+
+Nenhum resultado parcialmente inválido pode ser considerado efetivo apenas porque possui algum valor.
+
+---
+
+16. Grupos de fontes
+
+Um grupo somente satisfaz seu requisito quando possui o número mínimo de fontes efetivas definido por contrato.
+
+Falhas e fontes não despachadas não podem ser contadas como fontes efetivas.
+
+Coverage somente pode ser considerada completa quando todas as fontes obrigatórias forem efetivas.
+
+---
+
+17. Dados financeiros devem ser rastreáveis
+
+Todo cálculo financeiro relevante deve possuir:
+
+- entradas identificáveis;
+- origem das entradas;
+- referência temporal;
+- fórmula;
+- validação;
+- resultado;
+- tratamento explícito de ausência;
+- possibilidade de auditoria.
+
+Não devem ser usados números cuja origem não possa ser determinada.
+
+---
+
+18. Cálculos derivados
+
+Cálculos derivados devem distinguir claramente:
+
+- dado original;
+- dado normalizado;
+- dado derivado;
+- resultado final.
+
+Não é permitido apresentar um cálculo derivado como se fosse um dado fornecido diretamente por uma fonte.
+
+---
+
+19. Proibição de inferência silenciosa
+
+O sistema não deve:
+
+- inventar dados;
+- preencher dados ausentes sem autorização contratual;
+- transformar falhas em valores;
+- inferir valores financeiros críticos sem regra explícita;
+- misturar fontes incompatíveis;
+- alterar definições contratuais silenciosamente.
+
+---
+
+20. Regras específicas de IA
+
+Modelos de IA podem auxiliar:
+
+- análise;
+- explicação;
+- classificação;
+- interpretação;
+- geração de interfaces;
+- assistência de desenvolvimento.
+
+A IA não pode alterar silenciosamente:
+
+- contratos;
+- fórmulas;
+- estados;
+- regras financeiras;
+- requisitos de segurança;
+- requisitos de rastreabilidade.
+
+Se a IA identificar necessidade de alteração de uma regra superior, deve propor a alteração, não aplicá-la silenciosamente.
+
+---
+
+21. Governança das mudanças
+
+A Skill, o código, os testes ou qualquer workflow podem identificar necessidade de mudança na:
+
+- Constituição;
+- Master Specification;
+- Acceptance Tests.
+
+Porém, nenhum desses mecanismos pode alterar silenciosamente esses documentos para tornar a implementação mais fácil.
+
+Uma alteração normativa deve ser:
+
+1. identificada;
+2. justificada;
+3. apresentada como proposta;
+4. revisada;
+5. aprovada;
+6. então incorporada ao documento correspondente.
+
+A Skill pode recomendar mudanças, mas não pode autorizar suas próprias mudanças de regra.
+
+---
+
+22. Segurança
+
+Segredos não podem aparecer em:
+
+- código;
+- frontend;
+- logs;
+- testes;
+- commits;
+- documentação pública;
+- prompts públicos;
+- respostas da API.
+
+Credenciais devem ser tratadas como configuração segura.
+
+Nenhuma interface deve expor segredos ao cliente.
+
+---
+
+23. Banco de dados
+
+O banco deve preservar integridade, rastreabilidade e consistência dos dados.
+
+Persistência não deve alterar semanticamente um resultado apenas para facilitar armazenamento.
+
+Contratos de persistência devem ser definidos antes de mudanças estruturais relevantes.
+
+---
+
+24. API
+
+A API deve possuir contratos explícitos.
+
+Mudanças incompatíveis devem ser tratadas como mudanças de contrato e não como simples refatorações internas.
+
+A interface deve preservar semântica de:
+
+- sucesso;
+- falha;
+- ausência;
+- execução parcial;
+- não execução.
+
+---
+
+25. Testes
+
+Toda funcionalidade relevante deve possuir testes apropriados.
+
+Devem ser considerados, quando aplicáveis:
+
+- caminho de sucesso;
+- ausência de dados;
+- falha;
+- dados inválidos;
+- limites;
+- concorrência;
+- timeout;
+- cancelamento;
+- regressão.
+
+---
+
+26. Regressão
+
+Uma mudança não deve ser considerada segura apenas porque seu teste específico passou.
+
+Deve ser avaliado o impacto sobre os contratos existentes.
+
+---
+
+27. Mudanças mínimas
+
+Implementações devem modificar somente o necessário para atender ao requisito.
+
+Refatorações não solicitadas devem ser evitadas.
+
+Quanto maior o risco da mudança, maior deve ser o nível de inspeção e evidência exigido.
+
+---
+
+28. Contratos congelados
+
+Contratos declarados como congelados não podem ser alterados silenciosamente.
+
+Uma mudança de contrato deve ser explicitamente versionada.
+
+Por exemplo:
+
+- Schema v1.0 permanece v1.0;
+- mudança incompatível exige novo contrato/versionamento.
+
+---
+
+29. Versionamento
+
+Mudanças relevantes de contrato, arquitetura ou comportamento devem ser identificáveis por versão ou registro equivalente.
+
+Não deve existir mudança incompatível sem rastreabilidade.
+
+---
+
+30. Observabilidade
+
+Execuções relevantes devem permitir identificar:
+
+- o que foi executado;
+- quais fontes foram utilizadas;
+- quais falharam;
+- quais não foram executadas;
+- quais resultados foram efetivos;
+- quais cálculos foram produzidos.
+
+---
+
+31. Determinismo
+
+Quando o contrato exigir determinismo, o mesmo conjunto de entradas deve produzir comportamento equivalente.
+
+Resultados não podem depender de comportamento oculto ou não documentado.
+
+---
+
+32. Dependências
+
+Dependências devem ser introduzidas conscientemente.
+
+Nenhuma dependência deve ser adicionada apenas para contornar um problema que poderia ser resolvido respeitando a arquitetura existente.
+
+---
+
+33. Código gerado pelo Bolt não é automaticamente validado
+
+O fato de o Bolt produzir código que:
+
+- compila;
+- inicia;
+- publica;
+- aparenta funcionar;
+
+não significa que o código esteja correto.
+
+Código gerado deve ser submetido aos contratos, testes e auditorias do projeto.
+
+---
+
+34. Plan Mode
+
+Para trabalhos de complexidade ou risco médio/alto, o fluxo recomendado é:
+
+PLAN MODE → PLANO → AUDITORIA DO PLANO → AUTORIZAÇÃO → BUILD MODE → IMPLEMENTAÇÃO
+
+Plan Mode não substitui auditoria.
+
+Um plano pode estar tecnicamente inconsistente e deve ser revisado antes da implementação.
+
+---
+
+35. Implementação incremental
+
+O projeto deve ser construído em incrementos verificáveis.
+
+Cada incremento deve possuir:
+
+- escopo;
+- contrato;
+- implementação;
+- teste;
+- evidência;
+- critério de conclusão.
+
+Não se deve presumir que um grande build integral esteja correto apenas porque terminou sem erro.
+
+---
+
+36. Hierarquia de evidência
+
+Afirmações técnicas devem possuir evidência proporcional à afirmação.
+
+Exemplos:
+
+- “compila” → evidência de compilação/typecheck;
+- “teste passa” → resultado do teste;
+- “contrato preservado” → auditoria contratual;
+- “seguro” → evidência de auditoria de segurança apropriada;
+- “cobertura completa” → resultados das fontes + regras de coverage;
+- “implementação completa” → checklist de requisitos + testes.
+
+Nenhuma afirmação de sucesso deve ser considerada comprovada sem evidência correspondente.
+
+---
+
+37. Regra de parada
+
+O trabalho deve ser interrompido quando existir:
+
+- ambiguidade contratual relevante;
+- conflito entre documentos;
+- risco financeiro não resolvido;
+- risco de segurança;
+- comportamento não especificado;
+- evidência insuficiente para uma decisão necessária.
+
+O sistema deve preferir BLOCKED a inventar uma decisão.
+
+---
+
+38. Critério constitucional de qualidade
+
+Uma implementação somente pode ser considerada tecnicamente adequada quando:
+
+1. respeita a Constituição;
+2. respeita a Master Specification;
+3. satisfaz os Acceptance Tests;
+4. possui testes apropriados;
+5. possui evidência das afirmações relevantes;
+6. preserva rastreabilidade;
+7. preserva semântica de falhas e ausência;
+8. não introduz mudanças contratuais silenciosas;
+9. não viola requisitos de segurança.
+
+---
+
+39. Regra final
+
+O InvestAI deve preferir:
+
+evidência a aparência,
+
+contrato a conveniência,
+
+rastreabilidade a inferência,
+
+falha explícita a sucesso falso,
+
+implementação mínima a complexidade desnecessária,
+
+e
+
+BLOCKED a uma decisão inventada.
