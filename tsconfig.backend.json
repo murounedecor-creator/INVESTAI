@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "baseUrl": "."
+  },
+  "include": [
+    "src/contracts/**",
+    "src/core/**",
+    "src/orchestrator/**",
+    "src/scheduler/**",
+    "src/agents/**",
+    "src/api/**",
+    "src/db/**",
+    "backend/**",
+    "test/**"
+  ],
+  "exclude": [
+    "app/**",
+    "src/config/**",
+    "src/client/**",
+    "hooks/**",
+    "node_modules/**"
+  ]
+}

@@ -10,7 +10,16 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts",
-    "nativewind-env.d.ts"
+    "expo-env.d.ts"
+  ],
+  "exclude": [
+    "backend/**",
+    "src/api/**",
+    "src/core/**",
+    "src/orchestrator/**",
+    "src/scheduler/**",
+    "src/agents/**",
+    "src/db/**",
+    "test/**"
   ]
 }
