@@ -32,7 +32,8 @@ export async function handlePostRun(
   let body: { params?: Record<string, unknown> };
 
   try {
-    body = await request.json();
+    const parsed: unknown = await request.json();
+    body = parsed as { params?: Record<string, unknown> };
   } catch {
     return errorResponse('VALIDATION_ERROR', 'Request body must be valid JSON');
   }

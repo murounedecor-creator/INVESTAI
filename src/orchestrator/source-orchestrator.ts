@@ -100,12 +100,12 @@ async function runWithConcurrencyAndTimeout(
     while (currentIndex < tasks.length && !timedOut) {
       const task = tasks[currentIndex++];
       try {
-        const { result } = await Promise.race([
+        const raceResult = await Promise.race([
           executeSource(task.source, 'NONE', task.handlers),
           timeoutPromise.then(() => null),
         ]);
-        if (result) {
-          results.push(result);
+        if (raceResult) {
+          results.push(raceResult.result);
         } else {
           // Timeout hit during execution
           results.push(createCancelledResult(task.source, REASON_GLOBAL_TIMEOUT));

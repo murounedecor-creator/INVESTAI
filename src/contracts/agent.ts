@@ -1,4 +1,5 @@
 import type { RunContext } from './run';
+export type { RunContext };
 
 /**
  * AgentResult — FROZEN CONTRACT (Master Specification v1.0)

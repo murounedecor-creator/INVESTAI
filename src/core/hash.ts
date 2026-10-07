@@ -7,7 +7,7 @@ export async function sha256Hex(bytes: Uint8Array): Promise<string> {
   if (!crypto?.subtle) {
     throw new Error('Web Crypto API (crypto.subtle) is not available in this runtime');
   }
-  const hashBuffer = await crypto.subtle.digest('SHA-256', bytes);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', bytes as unknown as ArrayBuffer);
   const hashArray = new Uint8Array(hashBuffer);
   return Array.from(hashArray)
     .map((b) => b.toString(16).padStart(2, '0'))

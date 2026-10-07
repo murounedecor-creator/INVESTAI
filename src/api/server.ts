@@ -20,6 +20,29 @@ export function startServer(
         const method = req.method ?? 'GET';
         const pathname = url.pathname;
 
+        // Handle CORS preflight
+        if (method === 'OPTIONS') {
+          res.writeHead(204, {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          });
+          res.end();
+          return;
+        }
+
+        // Buffer the request body for POST requests
+        let bodyBytes: Uint8Array | undefined;
+        if (method === 'POST') {
+          const chunks: Buffer[] = [];
+          await new Promise<void>((resolve, reject) => {
+            req.on('data', (chunk: Buffer) => chunks.push(chunk));
+            req.on('end', () => resolve());
+            req.on('error', reject);
+          });
+          bodyBytes = new Uint8Array(Buffer.concat(chunks));
+        }
+
         // Build a Web API Request for the handlers
         const headers = new Headers();
         for (const [key, value] of Object.entries(req.headers)) {
@@ -28,41 +51,26 @@ export function startServer(
           }
         }
 
-        let body: ReadableStream<Uint8Array> | undefined;
-        if (method === 'POST' && req) {
-          body = new ReadableStream({
-            start(controller) {
-              req.on('data', (chunk: Buffer) => controller.enqueue(new Uint8Array(chunk)));
-              req.on('end', () => controller.close());
-              req.on('error', (err) => controller.error(err));
-            },
-          });
-        }
-
         const request = new Request(`http://localhost:${port}${req.url}`, {
           method,
           headers,
-          body,
+          body: bodyBytes,
         });
 
         const response = await routeRequest(method, pathname, request, deps);
 
-        res.writeHead(response.status, {
+        const responseHeaders: Record<string, string> = {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        });
+        };
 
-        if (method === 'OPTIONS') {
-          res.writeHead(204);
-          res.end();
-          return;
-        }
+        res.writeHead(response.status, responseHeaders);
 
         const responseBody = await response.text();
         res.end(responseBody);
-      } catch (err) {
+      } catch {
         const fallback = errorResponse('INTERNAL_ERROR', 'Unexpected server error');
         res.writeHead(fallback.status, { 'Content-Type': 'application/json' });
         res.end(await fallback.text());

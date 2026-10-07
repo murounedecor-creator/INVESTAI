@@ -30,4 +30,5 @@ export interface RunResult {
 }
 
 // Re-export types needed by agent.ts
-export type { AgentResult, AgentFailure } from './agent';
+import type { AgentResult, AgentFailure } from './agent';
+export type { AgentResult, AgentFailure };

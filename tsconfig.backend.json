@@ -18,15 +18,15 @@
     "baseUrl": "."
   },
   "include": [
-    "src/contracts/**",
-    "src/core/**",
-    "src/orchestrator/**",
-    "src/scheduler/**",
-    "src/agents/**",
-    "src/api/**",
-    "src/db/**",
-    "backend/**",
-    "test/**"
+    "src/contracts/**/*.ts",
+    "src/core/**/*.ts",
+    "src/orchestrator/**/*.ts",
+    "src/scheduler/**/*.ts",
+    "src/agents/**/*.ts",
+    "src/api/**/*.ts",
+    "src/db/**/*.ts",
+    "backend/**/*.ts",
+    "test/**/*.ts"
   ],
   "exclude": [
     "app/**",

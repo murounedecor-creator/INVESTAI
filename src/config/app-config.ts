@@ -2,7 +2,7 @@
  * Mobile application configuration.
  *
  * Reads ONLY EXPO_PUBLIC_* variables (safe for client-side).
- * NEVER reads SUPABASE_SERVICE_ROLE_KEY or other private credentials.
+ * NEVER reads private credentials or service keys.
  *
  * This module is part of the Mobile (Expo/React Native) bundle.
  */
