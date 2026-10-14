@@ -31,13 +31,20 @@ export async function handlePostRun(
 
   try {
     const parsed: unknown = await request.json();
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      return errorResponse('VALIDATION_ERROR', 'Request body must be a JSON object');
+    }
     body = parsed as { params?: Record<string, unknown> };
   } catch {
     return errorResponse('VALIDATION_ERROR', 'Request body must be valid JSON');
   }
 
-  if (typeof body !== 'object' || body === null) {
-    return errorResponse('VALIDATION_ERROR', 'Request body must be a JSON object');
+  const rawParams: unknown = body.params;
+  if (
+    rawParams !== undefined &&
+    (typeof rawParams !== 'object' || rawParams === null || Array.isArray(rawParams))
+  ) {
+    return errorResponse('VALIDATION_ERROR', 'params must be a JSON object when provided');
   }
 
   const runId = generateRunId();
