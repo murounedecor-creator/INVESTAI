@@ -2,9 +2,9 @@
 // This file re-exports it for convenience and provides a base abstract class
 // that domain agents (future phases) can extend.
 
-export type { Agent } from '@/src/contracts/agent';
-
 import type { Agent, AgentResult, AgentFailure, RunContext } from '@/src/contracts/agent';
+
+export type { Agent } from '@/src/contracts/agent';
 
 /**
  * Abstract base class for domain agents.

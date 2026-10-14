@@ -1,3 +1,6 @@
+import type { AgentResult, AgentFailure } from './agent';
+export type { AgentResult, AgentFailure };
+
 /**
  * RunContext — context for a single execution run.
  */
@@ -28,7 +31,3 @@ export interface RunResult {
   failures: AgentFailure[];
   status: RunStatus;
 }
-
-// Re-export types needed by agent.ts
-import type { AgentResult, AgentFailure } from './agent';
-export type { AgentResult, AgentFailure };

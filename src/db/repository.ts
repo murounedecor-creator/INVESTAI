@@ -23,11 +23,11 @@ export interface RunRepository {
   insertAgentFailure(failure: AgentFailure): Promise<void>;
   getAgentFailures(runId: string): Promise<AgentFailureRow[]>;
 
-  getAgentIds(runId: string): Promise<Array<{
-    agent_id: string;
-    has_result: boolean;
-    has_failure: boolean;
-  }>>;
+  getAgentIds(runId: string): Promise<{
+      agent_id: string;
+      has_result: boolean;
+      has_failure: boolean;
+    }[]>;
 }
 
 /**

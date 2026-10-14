@@ -43,7 +43,7 @@ export function toGetRunResponse(row: RunRow): GetRunResponse {
  */
 export function toGetRunAgentsResponse(
   runId: string,
-  agents: Array<{ agent_id: string; has_result: boolean; has_failure: boolean }>
+  agents: { agent_id: string; has_result: boolean; has_failure: boolean }[]
 ): GetRunAgentsResponse {
   return {
     run_id: runId,

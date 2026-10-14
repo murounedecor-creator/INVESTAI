@@ -10,11 +10,7 @@ export interface PostRunResponse {
   status: 'COMPLETED' | 'PARTIAL' | 'FAILED';
   finished_at: string;
   agents: string[];
-  failures: Array<{
-    agent_id: string;
-    error_type: string;
-    message: string;
-  }>;
+  failures: { agent_id: string; error_type: string; message: string }[];
 }
 
 // ============================================================
@@ -46,11 +42,7 @@ export interface GetRunResponse {
 
 export interface GetRunAgentsResponse {
   run_id: string;
-  agents: Array<{
-    agent_id: string;
-    has_result: boolean;
-    has_failure: boolean;
-  }>;
+  agents: { agent_id: string; has_result: boolean; has_failure: boolean }[];
 }
 
 export interface GetRunAgentResponse {

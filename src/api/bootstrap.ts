@@ -98,11 +98,11 @@ export class SupabaseRunRepository implements RunRepository {
     return (data ?? []) as import('@/src/db/types').AgentFailureRow[];
   }
 
-  async getAgentIds(runId: string): Promise<Array<{
-    agent_id: string;
-    has_result: boolean;
-    has_failure: boolean;
-  }>> {
+  async getAgentIds(runId: string): Promise<{
+      agent_id: string;
+      has_result: boolean;
+      has_failure: boolean;
+    }[]> {
     const [results, failures] = await Promise.all([
       this.getAgentResults(runId),
       this.getAgentFailures(runId),

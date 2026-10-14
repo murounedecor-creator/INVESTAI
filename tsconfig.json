@@ -3,7 +3,9 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     }
   },
   "include": [
@@ -20,6 +22,7 @@
     "src/scheduler/**",
     "src/agents/**",
     "src/db/**",
-    "test/**"
+    "test/**",
+    "backups/**"
   ]
 }

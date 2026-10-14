@@ -4,8 +4,6 @@ import type { RunResult, RunContext } from '@/src/contracts/run';
 import { executeRun } from '@/src/scheduler/scheduler';
 import {
   runContextToRow,
-  agentResultToRow,
-  agentFailureToRow,
 } from '@/src/db/repository';
 import { toPostRunResponse } from '../response-mapper';
 import { errorResponse, successResponse, safeErrorMessage } from '../errors';
