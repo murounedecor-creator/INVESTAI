@@ -4,18 +4,16 @@ import {
   executeSource,
   createNotDispatchedResult,
   createCancelledResult,
-} from './source-executor';
+} from '@/src/orchestrator/source-executor';
 import type { SourceStepHandlers } from '@/src/core/source-pipeline';
 
-/**
- * SourceOrchestrator — controls dispatch, concurrency, budget, groups, and timeout.
- *
- * Responsibilities:
- * - Respect max_dispatches (global limit on number of sources dispatched)
- * - Limit concurrency via max_concurrency
- * - Enforce global_timeout (started work may be cancelled, unstarted work becomes NOT_DISPATCHED)
- * - Preserve dispatch_reason for NOT_DISPATCHED and CANCELLED states
- */
+const REASON_MAX_DISPATCHES: DispatchReason = 'MAX_DISPATCHES_REACHED';
+const REASON_GLOBAL_TIMEOUT: DispatchReason = 'GLOBAL_TIMEOUT';
+
+export interface SourceTask {
+  source: string;
+  handlers: SourceStepHandlers;
+}
 
 export interface OrchestratorConfig {
   max_dispatches: number;
@@ -23,30 +21,15 @@ export interface OrchestratorConfig {
   global_timeout_ms: number;
 }
 
-export interface SourceTask {
-  source: string;
-  handlers: SourceStepHandlers;
-}
-
 export interface OrchestratorResult {
   results: SourceResult[];
 }
 
-// Dispatch reason constants — descriptive strings, NOT frozen enum values.
-// The runtime NEVER produces "TO_SPECIFY".
-const REASON_MAX_DISPATCHES: DispatchReason = 'MAX_DISPATCHES_REACHED';
-const REASON_GLOBAL_TIMEOUT: DispatchReason = 'GLOBAL_TIMEOUT';
-
-/**
- * Orchestrates the execution of multiple sources with concurrency and timeout control.
- */
 export async function orchestrateSources(
   tasks: SourceTask[],
   config: OrchestratorConfig
 ): Promise<OrchestratorResult> {
   const results: SourceResult[] = [];
-
-  // Determine which sources get dispatched (respecting max_dispatches)
   const toDispatch: SourceTask[] = [];
   const notDispatched: SourceResult[] = [];
 
@@ -60,24 +43,25 @@ export async function orchestrateSources(
     }
   }
 
-  // Execute with concurrency limit and global timeout
   const dispatchedResults = await runWithConcurrencyAndTimeout(
     toDispatch,
     config.max_concurrency,
     config.global_timeout_ms
   );
 
-  // Combine: dispatched results first, then not-dispatched
   results.push(...dispatchedResults.results, ...notDispatched);
-
   return { results };
 }
 
 /**
- * Runs tasks with a concurrency limiter and global timeout.
+ * Runs tasks with a concurrency limiter and a global timeout.
  *
- * Tasks that don't start before the timeout expires become CANCELLED.
- * Tasks that are in-flight when timeout expires are also CANCELLED.
+ * Active tasks when the timeout expires become CANCELLED.
+ * Tasks that have not started become NOT_DISPATCHED.
+ *
+ * AbortSignal is cooperative: a handler must observe the signal
+ * to stop its own work. Promise.race prevents the orchestrator
+ * from waiting indefinitely for a handler that ignores cancellation.
  */
 async function runWithConcurrencyAndTimeout(
   tasks: SourceTask[],
@@ -87,49 +71,109 @@ async function runWithConcurrencyAndTimeout(
   const results: SourceResult[] = [];
   let currentIndex = 0;
   let timedOut = false;
+  let firstFailure: Error | null = null;
 
-  // Create a timeout controller
+  const abortController = new AbortController();
+
+  let resolveTimeout!: () => void;
   const timeoutPromise = new Promise<void>((resolve) => {
-    setTimeout(() => {
-      timedOut = true;
-      resolve();
-    }, timeoutMs);
+    resolveTimeout = resolve;
   });
 
+  const timeoutHandle = setTimeout(() => {
+    timedOut = true;
+    abortController.abort();
+    resolveTimeout();
+  }, timeoutMs);
+
   async function runNext(): Promise<void> {
-    while (currentIndex < tasks.length && !timedOut) {
+    while (
+      currentIndex < tasks.length &&
+      !timedOut &&
+      firstFailure === null
+    ) {
       const task = tasks[currentIndex++];
+
+      const executionPromise = executeSource(
+        task.source,
+        'NONE',
+        task.handlers,
+        abortController.signal
+      );
+
       try {
-        const raceResult = await Promise.race([
-          executeSource(task.source, 'NONE', task.handlers),
-          timeoutPromise.then(() => null),
+        const outcome = await Promise.race([
+          executionPromise.then((value) => ({
+            kind: 'result' as const,
+            value,
+          })),
+          timeoutPromise.then(() => ({
+            kind: 'timeout' as const,
+          })),
         ]);
-        if (raceResult) {
-          results.push(raceResult.result);
+
+        if (firstFailure !== null) {
+          return;
+        }
+
+        if (outcome.kind === 'result') {
+          results.push(outcome.value.result);
         } else {
-          // Timeout hit during execution
-          results.push(createCancelledResult(task.source, REASON_GLOBAL_TIMEOUT));
+          results.push(
+            createCancelledResult(task.source, REASON_GLOBAL_TIMEOUT)
+          );
         }
       } catch {
-        results.push(createCancelledResult(task.source, REASON_GLOBAL_TIMEOUT));
+        if (firstFailure !== null) {
+          return;
+        }
+
+        if (timedOut) {
+          results.push(
+            createCancelledResult(task.source, REASON_GLOBAL_TIMEOUT)
+          );
+        } else {
+          firstFailure = new Error(
+            `SOURCE_EXECUTION_FAILED: ${task.source}`
+          );
+          abortController.abort();
+          return;
+        }
       }
     }
 
-    // If timeout expired, mark remaining unstarted tasks as CANCELLED
+    if (firstFailure !== null) {
+      return;
+    }
+
     while (currentIndex < tasks.length) {
       const task = tasks[currentIndex++];
-      results.push(createCancelledResult(task.source, REASON_GLOBAL_TIMEOUT));
+      results.push(
+        createNotDispatchedResult(task.source, REASON_GLOBAL_TIMEOUT)
+      );
     }
   }
 
-  // Start concurrency workers
-  const workers: Promise<void>[] = [];
-  const workerCount = Math.min(maxConcurrency, tasks.length);
-  for (let i = 0; i < workerCount; i++) {
-    workers.push(runNext());
+  try {
+    const workerCount = Math.min(
+      Math.max(1, maxConcurrency),
+      tasks.length
+    );
+
+    const workers: Promise<void>[] = [];
+
+    for (let i = 0; i < workerCount; i++) {
+      workers.push(runNext());
+    }
+
+    await Promise.allSettled(workers);
+
+    if (firstFailure !== null) {
+      throw firstFailure;
+    }
+
+    return { results };
+  } finally {
+    clearTimeout(timeoutHandle);
   }
-
-  await Promise.all(workers);
-
-  return { results };
 }

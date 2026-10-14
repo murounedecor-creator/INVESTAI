@@ -14,14 +14,15 @@ import { executeSourcePipeline, type SourceStepHandlers } from '@/src/core/sourc
 export async function executeSource(
   sourceName: string,
   dispatchReason: DispatchReason,
-  handlers: SourceStepHandlers
+  handlers: SourceStepHandlers,
+  signal?: AbortSignal
 ): Promise<{ result: SourceResult; detail: SourceExecutionDetail }> {
-  return executeSourcePipeline(sourceName, dispatchReason, handlers);
+  return executeSourcePipeline(sourceName, dispatchReason, handlers, signal);
 }
 
 /**
  * Creates a NOT_DISPATCHED source result.
- * Used when a source was not started due to max_dispatches limit.
+ * Used when a source was not started due to a dispatch limit or global timeout.
  */
 export function createNotDispatchedResult(
   sourceName: string,
@@ -40,7 +41,7 @@ export function createNotDispatchedResult(
 
 /**
  * Creates a CANCELLED source result.
- * Used when a source was cancelled due to global timeout.
+ * Used when an already-dispatched source is cancelled due to global timeout.
  */
 export function createCancelledResult(
   sourceName: string,

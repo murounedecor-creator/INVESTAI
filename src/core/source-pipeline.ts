@@ -3,18 +3,22 @@ import type {
   SourceExecutionDetail,
 } from '@/src/contracts/source';
 import type { DispatchReason } from '@/src/contracts/dispatch';
-import type { NormalizationState, FailureLayer } from '@/src/contracts/normalization';
+import type {
+  NormalizationState,
+  FailureLayer,
+} from '@/src/contracts/normalization';
 import { createSourceResult } from '@/src/contracts/source';
 import { sha256Hex } from './hash';
 
 /**
- * Source Pipeline — COLLECT → PARSE → NORMALIZE → [domain validation when applicable] → RESULT
+ * Source Pipeline — COLLECT → PARSE → NORMALIZE
+ * → domain validation when applicable → RESULT
  *
- * The validation step is NOT a universal validate() function.
- * It can be separate or integrated into normalization, depending on the contract.
+ * Validation is not a universal validate() function.
+ * It may be separate or integrated into normalization.
  *
- * This module provides the interface and a reference executor.
- * Domain-specific sources are implemented in future phases.
+ * This module provides the reference executor.
+ * Domain-specific sources are implemented separately.
  */
 
 export interface CollectOutput {
@@ -36,22 +40,52 @@ export interface NormalizeOutput {
 }
 
 export interface SourceStepHandlers {
-  collect: () => Promise<CollectOutput>;
-  parse: (raw: Uint8Array) => ParseOutput | Promise<ParseOutput>;
-  normalize: (parsed: unknown) => NormalizeOutput | Promise<NormalizeOutput>;
+  collect: (
+    signal?: AbortSignal
+  ) => Promise<CollectOutput>;
+
+  parse: (
+    raw: Uint8Array,
+    signal?: AbortSignal
+  ) => ParseOutput | Promise<ParseOutput>;
+
+  normalize: (
+    parsed: unknown,
+    signal?: AbortSignal
+  ) => NormalizeOutput | Promise<NormalizeOutput>;
+}
+
+export class SourceExecutionAbortedError extends Error {
+  constructor() {
+    super('SOURCE_EXECUTION_ABORTED');
+    this.name = 'AbortError';
+  }
+}
+
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    throw new SourceExecutionAbortedError();
+  }
 }
 
 /**
- * Executes the full pipeline for a single source.
- * Produces a SourceResult (frozen contract) + SourceExecutionDetail (internal).
+ * Executes the full pipeline for one source.
+ * Returns the frozen SourceResult contract and internal detail.
  */
 export async function executeSourcePipeline(
   sourceName: string,
   dispatchReason: DispatchReason,
-  handlers: SourceStepHandlers
-): Promise<{ result: SourceResult; detail: SourceExecutionDetail }> {
+  handlers: SourceStepHandlers,
+  signal?: AbortSignal
+): Promise<{
+  result: SourceResult;
+  detail: SourceExecutionDetail;
+}> {
+  throwIfAborted(signal);
+
   // COLLECT
-  const collectOutput = await handlers.collect();
+  const collectOutput = await handlers.collect(signal);
+  throwIfAborted(signal);
 
   if (!collectOutput.ok) {
     const detail: SourceExecutionDetail = {
@@ -59,6 +93,7 @@ export async function executeSourcePipeline(
       error_message: collectOutput.error_message,
       raw_bytes_length: null,
     };
+
     const result = createSourceResult({
       source: sourceName,
       dispatch: 'DISPATCHED',
@@ -68,14 +103,21 @@ export async function executeSourcePipeline(
       normalization: 'NOT_RUN',
       raw_hash: null,
     });
+
     return { result, detail };
   }
 
   const rawBytes = collectOutput.raw_bytes!;
+
   const rawHash = await sha256Hex(rawBytes);
+  throwIfAborted(signal);
 
   // PARSE
-  const parseOutput = await handlers.parse(rawBytes);
+  const parseOutput = await handlers.parse(
+    rawBytes,
+    signal
+  );
+  throwIfAborted(signal);
 
   if (!parseOutput.ok) {
     const detail: SourceExecutionDetail = {
@@ -83,6 +125,7 @@ export async function executeSourcePipeline(
       error_message: parseOutput.error_message,
       raw_bytes_length: rawBytes.length,
     };
+
     const result = createSourceResult({
       source: sourceName,
       dispatch: 'DISPATCHED',
@@ -92,14 +135,22 @@ export async function executeSourcePipeline(
       normalization: 'NOT_RUN',
       raw_hash: rawHash,
     });
+
     return { result, detail };
   }
 
-  // NORMALIZE (+ domain validation when applicable)
-  const normalizeOutput = await handlers.normalize(parseOutput.parsed);
+  // NORMALIZE
+  const normalizeOutput = await handlers.normalize(
+    parseOutput.parsed,
+    signal
+  );
+  throwIfAborted(signal);
 
   const detail: SourceExecutionDetail = {
-    failure_layer: normalizeOutput.normalization === 'FATAL' ? 'NORMALIZATION' as FailureLayer : 'NONE' as FailureLayer,
+    failure_layer:
+      normalizeOutput.normalization === 'FATAL'
+        ? ('NORMALIZATION' as FailureLayer)
+        : ('NONE' as FailureLayer),
     error_message: normalizeOutput.error_message,
     raw_bytes_length: rawBytes.length,
   };
