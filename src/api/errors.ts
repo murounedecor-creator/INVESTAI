@@ -33,10 +33,7 @@ export function successResponse(data: unknown, status = 200): Response {
  * Wraps a handler in a try/catch that produces INTERNAL_ERROR on uncaught exceptions.
  * NEVER exposes the error message or stack trace to the client.
  */
-export function safeErrorMessage(err: unknown): string {
-  // Return a generic message — never expose internal error details
-  if (err instanceof Error) {
-    return `Internal error: ${err.message}`;
-  }
+export function safeErrorMessage(_err: unknown): string {
+  // Never expose internal error details to the client.
   return 'Internal error';
 }
