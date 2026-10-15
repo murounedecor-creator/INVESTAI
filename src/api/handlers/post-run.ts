@@ -7,6 +7,7 @@ import {
 } from '@/src/db/repository';
 import { toPostRunResponse } from '../response-mapper';
 import { errorResponse, successResponse, safeErrorMessage } from '../errors';
+import { logServerError } from '@/src/core/log';
 import type { PostRunResponse } from '@/src/contracts/http';
 
 export interface ApiDependencies {
@@ -61,6 +62,7 @@ export async function handlePostRun(
   try {
     runResult = await executeRun(context, { agents: deps.agents });
   } catch (err) {
+    logServerError('post-run.execute', err);
     return errorResponse('INTERNAL_ERROR', safeErrorMessage(err));
   }
 
@@ -76,6 +78,7 @@ export async function handlePostRun(
       await deps.repository.insertAgentFailure(failure);
     }
   } catch (err) {
+    logServerError('post-run.persist', err);
     return errorResponse('INTERNAL_ERROR', safeErrorMessage(err));
   }
 
