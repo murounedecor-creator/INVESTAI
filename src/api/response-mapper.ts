@@ -6,7 +6,8 @@ import type {
   GetRunAgentResponse,
 } from '@/src/contracts/index';
 import type { RunRow, AgentRunRow, AgentFailureRow } from '@/src/db/types';
-import type { AgentResult, AgentFailure } from '@/src/contracts/agent';
+import type { AgentFailure } from '@/src/contracts/agent';
+import type { AgentResultView } from '@/src/contracts/http';
 
 /**
  * Maps RunResult → PostRunResponse (FROZEN HTTP CONTRACT).
@@ -60,19 +61,16 @@ export function toGetRunAgentResponse(
   resultRow: AgentRunRow | null,
   failureRow: AgentFailureRow | null
 ): GetRunAgentResponse {
-  let result: AgentResult | null = null;
+  let result: AgentResultView | null = null;
   let failure: AgentFailure | null = null;
 
   if (resultRow) {
     result = {
+      run_id: resultRow.run_id,
       agent_id: resultRow.agent_id,
-      context: {
-        run_id: resultRow.run_id,
-        started_at: resultRow.started_at,
-        params: {},
-      },
-      collection: resultRow.collection ?? {},
-      analysis: resultRow.analysis ?? {},
+      started_at: resultRow.started_at,
+      collection: resultRow.collection,
+      analysis: resultRow.analysis,
     };
   }
 

@@ -1,5 +1,5 @@
 import type { RunStatus } from './run';
-import type { AgentResult, AgentFailure } from './agent';
+import type { AgentFailure } from './agent';
 
 /**
  * PostRunResponse — FROZEN HTTP CONTRACT (Master Specification v1.0)
@@ -45,10 +45,18 @@ export interface GetRunAgentsResponse {
   agents: { agent_id: string; has_result: boolean; has_failure: boolean }[];
 }
 
+export interface AgentResultView {
+  run_id: string;
+  agent_id: string;
+  started_at: string;
+  collection: Record<string, unknown> | null;
+  analysis: Record<string, unknown> | null;
+}
+
 export interface GetRunAgentResponse {
   run_id: string;
   agent_id: string;
-  result: AgentResult | null;
+  result: AgentResultView | null;
   failure: AgentFailure | null;
 }
 
