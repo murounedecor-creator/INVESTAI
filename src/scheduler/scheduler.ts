@@ -60,7 +60,7 @@ export async function executeRun(
         agent_id: agent.agentId,
         started_at: context.started_at,
         error_type: 'AGENT_EXCEPTION',
-        message: outcome.reason instanceof Error ? outcome.reason.message : String(outcome.reason),
+        message: 'Agent execution failed',
       });
     }
   }

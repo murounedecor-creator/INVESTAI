@@ -50,7 +50,8 @@ describe('Scheduler — executeRun', () => {
     expect(result.status).toBe('FAILED');
     expect(result.failures).toHaveLength(1);
     expect(result.failures[0].error_type).toBe('AGENT_EXCEPTION');
-    expect(result.failures[0].message).toBe('boom');
+    expect(result.failures[0].message).toBe('Agent execution failed');
+    expect(result.failures[0].message).not.toContain('boom');
   });
 
   it('preserves run_id in context', async () => {
