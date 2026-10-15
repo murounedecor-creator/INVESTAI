@@ -1,6 +1,7 @@
 import type { RunRepository } from '@/src/db/repository';
 import { toGetRunResponse } from '../response-mapper';
 import { errorResponse, successResponse, safeErrorMessage } from '../errors';
+import { logServerError } from '@/src/core/log';
 
 /**
  * GET /runs/{run_id} handler.
@@ -20,6 +21,7 @@ export async function handleGetRun(
     }
     return successResponse(toGetRunResponse(row));
   } catch (err) {
+    logServerError('get-run', err);
     return errorResponse('INTERNAL_ERROR', safeErrorMessage(err));
   }
 }

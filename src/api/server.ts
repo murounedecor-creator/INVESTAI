@@ -2,6 +2,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import type { ApiDependencies } from './router';
 import { routeRequest } from './router';
 import { errorResponse } from './errors';
+import { logServerError } from '@/src/core/log';
 
 /**
  * Creates and starts an HTTP server that routes to the API handlers.
@@ -70,7 +71,8 @@ export function startServer(
 
         const responseBody = await response.text();
         res.end(responseBody);
-      } catch {
+      } catch (err) {
+        logServerError('server.unexpected', err);
         const fallback = errorResponse('INTERNAL_ERROR', 'Unexpected server error');
         res.writeHead(fallback.status, { 'Content-Type': 'application/json' });
         res.end(await fallback.text());

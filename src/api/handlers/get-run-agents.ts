@@ -1,6 +1,7 @@
 import type { RunRepository } from '@/src/db/repository';
 import { toGetRunAgentsResponse } from '../response-mapper';
 import { errorResponse, successResponse, safeErrorMessage } from '../errors';
+import { logServerError } from '@/src/core/log';
 
 /**
  * GET /runs/{run_id}/agents handler.
@@ -21,6 +22,7 @@ export async function handleGetRunAgents(
     const agents = await deps.repository.getAgentIds(runId);
     return successResponse(toGetRunAgentsResponse(runId, agents));
   } catch (err) {
+    logServerError('get-run-agents', err);
     return errorResponse('INTERNAL_ERROR', safeErrorMessage(err));
   }
 }

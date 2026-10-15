@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { AgentBase, type SourceCollection } from '@/src/agents/agent-base';
 import type { AgentResult, AgentFailure, RunContext } from '@/src/contracts/agent';
 import type { SourceGroup } from '@/src/contracts/source';
@@ -70,5 +70,18 @@ describe('AgentBase (ADR-003)', () => {
       expect(res.message).toBe('Agent execution failed');
       expect(res.message).not.toContain('secret');
     }
+  });
+});
+
+describe('AgentBase logging (pendency 8)', () => {
+  it('logs the original error server-side while the failure stays generic', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const res = await new TestAgent().run(ctx);
+    expect('message' in res && res.message).toBe('Agent execution failed');
+    expect(spy).toHaveBeenCalledTimes(1);
+    const line = JSON.parse(String(spy.mock.calls[0][0]));
+    expect(line.context).toBe('agent.test.execute');
+    expect(line.message).toContain('secret internal detail');
+    spy.mockRestore();
   });
 });

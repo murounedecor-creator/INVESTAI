@@ -10,6 +10,7 @@ import {
   type OrchestratorConfig,
   type SourceTask,
 } from '@/src/orchestrator/source-orchestrator';
+import { logServerError } from '@/src/core/log';
 
 export type { Agent } from '@/src/contracts/agent';
 
@@ -57,7 +58,8 @@ export abstract class AgentBase implements Agent {
   async run(context: RunContext): Promise<AgentResult | AgentFailure> {
     try {
       return await this.execute(context);
-    } catch {
+    } catch (err) {
+      logServerError(`agent.${this.agentId}.execute`, err);
       // Never expose internal error details to API clients.
       return {
         run_id: context.run_id,
