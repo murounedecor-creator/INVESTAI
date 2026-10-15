@@ -7,7 +7,7 @@ import type { RunStatus } from '@/src/contracts/run';
 /**
  * Derives RunStatus from results and failures.
  *
- * COMPLETED: all agents produced results AND no failures exist.
+ * COMPLETE: all agents produced results AND no failures exist.
  * PARTIAL: at least one result AND at least one failure.
  * FAILED: no successful results AND at least one failure.
  *
@@ -31,7 +31,7 @@ export function deriveRunStatus(
   const hasFailures = failures.length > 0;
 
   if (hasResults && !hasFailures) {
-    return 'COMPLETED';
+    return 'COMPLETE';
   }
   if (hasResults && hasFailures) {
     return 'PARTIAL';

@@ -55,7 +55,7 @@ describe('HTTP Boundary Integration', () => {
     expect(response.status).toBe(200);
     const body = (await response.json()) as PostRunResponse;
     expect(body.run_id).toBeDefined();
-    expect(body.status).toBe('COMPLETED');
+    expect(body.status).toBe('COMPLETE');
     expect(body.agents).toEqual(['a1']);
   });
 

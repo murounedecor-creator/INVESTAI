@@ -9,7 +9,7 @@ describe('InMemoryRepository', () => {
       run_id: 'r1',
       started_at: '2025-01-01T00:00:00Z',
       finished_at: '2025-01-01T00:00:01Z',
-      status: 'COMPLETED',
+      status: 'COMPLETE',
     });
     const run = await repo.getRun('r1');
     expect(run).not.toBeNull();
@@ -28,7 +28,7 @@ describe('InMemoryRepository', () => {
       run_id: 'r1',
       started_at: '2025-01-01T00:00:00Z',
       finished_at: null,
-      status: 'COMPLETED',
+      status: 'COMPLETE',
     });
     const result: AgentResult = {
       agent_id: 'a1',

@@ -14,8 +14,8 @@ function makeFailure(id: string): AgentFailure {
 }
 
 describe('deriveRunStatus', () => {
-  it('COMPLETED when results exist and no failures', () => {
-    expect(deriveRunStatus([makeResult('a')], [])).toBe('COMPLETED');
+  it('COMPLETE when results exist and no failures', () => {
+    expect(deriveRunStatus([makeResult('a')], [])).toBe('COMPLETE');
   });
 
   it('PARTIAL when both results and failures exist', () => {

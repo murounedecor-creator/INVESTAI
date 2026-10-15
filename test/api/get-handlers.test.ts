@@ -13,7 +13,7 @@ describe('GET handlers', () => {
       run_id: 'r1',
       started_at: '2025-01-01T00:00:00Z',
       finished_at: '2025-01-01T00:00:01Z',
-      status: 'COMPLETED',
+      status: 'COMPLETE',
     });
     const result: AgentResult = {
       agent_id: 'a1',
@@ -31,7 +31,7 @@ describe('GET handlers', () => {
     expect(response.status).toBe(200);
     const body = (await response.json()) as GetRunResponse;
     expect(body.run_id).toBe('r1');
-    expect(body.status).toBe('COMPLETED');
+    expect(body.status).toBe('COMPLETE');
   });
 
   it('GET /runs/{id} returns 404 RUN_NOT_FOUND for missing run', async () => {

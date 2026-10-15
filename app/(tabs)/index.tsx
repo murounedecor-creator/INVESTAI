@@ -118,7 +118,7 @@ export default function HomeScreen() {
                 styles.value,
                 {
                   color:
-                    state.status === 'COMPLETED'
+                    state.status === 'COMPLETE'
                       ? '#22c55e'
                       : state.status === 'PARTIAL'
                         ? '#f59e0b'

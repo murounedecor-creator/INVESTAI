@@ -7,7 +7,7 @@ import type { AgentResult, AgentFailure } from './agent';
  */
 export interface PostRunResponse {
   run_id: string;
-  status: 'COMPLETED' | 'PARTIAL' | 'FAILED';
+  status: 'COMPLETE' | 'PARTIAL' | 'DEGRADED' | 'FAILED';
   finished_at: string;
   agents: string[];
   failures: { agent_id: string; error_type: string; message: string }[];

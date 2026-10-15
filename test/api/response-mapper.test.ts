@@ -3,7 +3,7 @@ import { toPostRunResponse } from '@/src/api/response-mapper';
 import type { RunResult } from '@/src/contracts/run';
 
 describe('toPostRunResponse', () => {
-  it('maps a COMPLETED run correctly', () => {
+  it('maps a COMPLETE run correctly', () => {
     const runResult: RunResult = {
       context: { run_id: 'r1', started_at: '2025-01-01T00:00:00Z', params: {} },
       finished_at: '2025-01-01T00:00:01Z',
@@ -16,12 +16,12 @@ describe('toPostRunResponse', () => {
         },
       ],
       failures: [],
-      status: 'COMPLETED',
+      status: 'COMPLETE',
     };
 
     const resp = toPostRunResponse(runResult);
     expect(resp.run_id).toBe('r1');
-    expect(resp.status).toBe('COMPLETED');
+    expect(resp.status).toBe('COMPLETE');
     expect(resp.finished_at).toBe('2025-01-01T00:00:01Z');
     expect(resp.agents).toEqual(['a1']);
     expect(resp.failures).toEqual([]);

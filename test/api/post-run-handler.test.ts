@@ -18,7 +18,7 @@ describe('POST /run handler', () => {
     expect(response.status).toBe(200);
     const body = (await response.json()) as PostRunResponse;
     expect(body.run_id).toBeDefined();
-    expect(body.status).toBe('COMPLETED');
+    expect(body.status).toBe('COMPLETE');
     expect(body.agents).toEqual(['a1']);
     expect(body.failures).toEqual([]);
   });
@@ -62,7 +62,7 @@ describe('POST /run handler', () => {
     const body = (await response.json()) as PostRunResponse;
     const run = await repo.getRun(body.run_id);
     expect(run).not.toBeNull();
-    expect(run!.status).toBe('COMPLETED');
+    expect(run!.status).toBe('COMPLETE');
     const results = await repo.getAgentResults(body.run_id);
     expect(results).toHaveLength(2);
   });

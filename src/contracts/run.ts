@@ -13,13 +13,13 @@ export interface RunContext {
 /**
  * RunStatus — FROZEN CONTRACT (Master Specification v1.0)
  *
- * COMPLETED: all agents produced results AND no failures exist.
+ * COMPLETE: all agents produced results AND no failures exist.
  * PARTIAL: at least one result AND at least one failure.
  * FAILED: no successful results AND at least one failure.
  *
  * A normal execution CANNOT result in results=[] AND failures=[] simultaneously.
  */
-export type RunStatus = 'COMPLETED' | 'PARTIAL' | 'FAILED';
+export type RunStatus = 'COMPLETE' | 'PARTIAL' | 'DEGRADED' | 'FAILED';
 
 /**
  * RunResult — result of a complete run.

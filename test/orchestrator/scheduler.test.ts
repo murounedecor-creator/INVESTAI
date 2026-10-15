@@ -10,11 +10,11 @@ const ctx: RunContext = {
 };
 
 describe('Scheduler — executeRun', () => {
-  it('COMPLETED when all agents succeed', async () => {
+  it('COMPLETE when all agents succeed', async () => {
     const result = await executeRun(ctx, {
       agents: [new FakeAgent('a1'), new FakeAgent('a2')],
     });
-    expect(result.status).toBe('COMPLETED');
+    expect(result.status).toBe('COMPLETE');
     expect(result.results).toHaveLength(2);
     expect(result.failures).toHaveLength(0);
   });
