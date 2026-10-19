@@ -69,7 +69,10 @@ async function runWithConcurrencyAndTimeout(
   maxConcurrency: number,
   timeoutMs: number
 ): Promise<OrchestratorResult> {
-  const results: SourceResult[] = [];
+  const entries: { index: number; result: SourceResult }[] = [];
+  const record = (index: number, result: SourceResult): void => {
+    entries.push({ index, result });
+  };
   let currentIndex = 0;
   let timedOut = false;
   let firstFailure: Error | null = null;
@@ -93,7 +96,8 @@ async function runWithConcurrencyAndTimeout(
       !timedOut &&
       firstFailure === null
     ) {
-      const task = tasks[currentIndex++];
+      const index = currentIndex++;
+      const task = tasks[index];
 
       const executionPromise = executeSource(
         task.source,
@@ -118,9 +122,10 @@ async function runWithConcurrencyAndTimeout(
         }
 
         if (outcome.kind === 'result') {
-          results.push(outcome.value.result);
+          record(index, outcome.value.result);
         } else {
-          results.push(
+          record(
+            index,
             createCancelledResult(task.source, REASON_GLOBAL_TIMEOUT)
           );
         }
@@ -130,7 +135,8 @@ async function runWithConcurrencyAndTimeout(
         }
 
         if (timedOut) {
-          results.push(
+          record(
+            index,
             createCancelledResult(task.source, REASON_GLOBAL_TIMEOUT)
           );
         } else {
@@ -150,8 +156,10 @@ async function runWithConcurrencyAndTimeout(
     }
 
     while (currentIndex < tasks.length) {
-      const task = tasks[currentIndex++];
-      results.push(
+      const index = currentIndex++;
+      const task = tasks[index];
+      record(
+        index,
         createNotDispatchedResult(task.source, REASON_GLOBAL_TIMEOUT)
       );
     }
@@ -175,7 +183,11 @@ async function runWithConcurrencyAndTimeout(
       throw firstFailure;
     }
 
-    return { results };
+    return {
+      results: entries
+        .sort((a, b) => a.index - b.index)
+        .map((e) => e.result),
+    };
   } finally {
     clearTimeout(timeoutHandle);
   }
