@@ -6,6 +6,7 @@ import {
   createCancelledResult,
 } from '@/src/orchestrator/source-executor';
 import type { SourceStepHandlers } from '@/src/core/source-pipeline';
+import { logServerError } from '@/src/core/log';
 
 const REASON_MAX_DISPATCHES: DispatchReason = 'MAX_DISPATCHES_REACHED';
 const REASON_GLOBAL_TIMEOUT: DispatchReason = 'GLOBAL_TIMEOUT';
@@ -123,7 +124,7 @@ async function runWithConcurrencyAndTimeout(
             createCancelledResult(task.source, REASON_GLOBAL_TIMEOUT)
           );
         }
-      } catch {
+      } catch (err) {
         if (firstFailure !== null) {
           return;
         }
@@ -133,8 +134,10 @@ async function runWithConcurrencyAndTimeout(
             createCancelledResult(task.source, REASON_GLOBAL_TIMEOUT)
           );
         } else {
+          logServerError(`orchestrator.${task.source}`, err);
           firstFailure = new Error(
-            `SOURCE_EXECUTION_FAILED: ${task.source}`
+            `SOURCE_EXECUTION_FAILED: ${task.source}`,
+            { cause: err }
           );
           abortController.abort();
           return;
