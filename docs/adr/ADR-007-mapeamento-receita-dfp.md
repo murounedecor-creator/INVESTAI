@@ -1,6 +1,6 @@
 # ADR-007 - Mapeamento de receita e custo da DFP (CVM)
 
-Status: PROPOSTO por delegacao do responsavel tecnico em 2026-10-20 (aguardando registro de aprovacao)
+Status: APROVADO pelo responsavel tecnico em 2026-10-20 (decisoes tomadas por delegacao; pendencias do item 8 seguem abertas)
 
 Origem: cabecalho e exemplos da DRE consolidada 2023 (dfp_cia_aberta_DRE_con_2023.csv).
 Achado: o codigo 3.01 e receita de intermediacao financeira no Banco do Brasil e receita de vendas na Petrobras. O codigo sozinho nao identifica a receita.
