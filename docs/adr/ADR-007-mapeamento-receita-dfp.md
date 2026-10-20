@@ -11,5 +11,5 @@ Achado: o codigo 3.01 e receita de intermediacao financeira no Banco do Brasil e
 4. Escala: VL_CONTA em milhares quando ESCALA_MOEDA = MIL. A escala fica no trace.
 5. Exercicio: ORDEM_EXERC = ULTIMO (atual) e PENULTIMO (comparacao). DT_INI_EXERC e DT_FIM_EXERC no trace.
 6. Reapresentacao: maior VERSAO por (CNPJ_CIA, DT_REFER). Convencao declarada; semantica de VERSAO nao verificada.
-7. ITR: fora desta decisao. Layout nao verificado.
+7. ITR: mesmo cabecalho e mesma convencao ORDEM_EXERC da DFP (verificado em 2023: 163.428 linhas, 471 empresas, 449 OK, 22 excluidas). ATENCAO: no ITR, ULTIMO e PENULTIMO sao trimestres, nao exercicios anuais. Receita trimestral nao e comparavel a anual; o trace deve declarar o periodo (DT_INI_EXERC e DT_FIM_EXERC).
 8. Pendencias: classificacao setorial oficial; semantica de VERSAO; layout do ITR.
