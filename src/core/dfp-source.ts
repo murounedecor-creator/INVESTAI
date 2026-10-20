@@ -17,8 +17,8 @@ export function toNormalizeOutput(r: NormalizeResult): NormalizeOutput {
   }
   if (!r.cost.ok) {
     return {
-      normalization: 'WARN',
-      normalized: { revenue: r.revenue.value },
+      normalization: 'FATAL',
+      normalized: null,
       error_message: 'CUSTO_INDISPONIVEL: ' + r.cost.reason,
     };
   }

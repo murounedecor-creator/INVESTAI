@@ -54,3 +54,15 @@ describe('dfpDreHandlers via executeSourcePipeline', () => {
     expect(result.normalization).toBe('NOT_RUN');
   });
 });
+
+describe('a missing cost is not effective (Constitution 15 and 16)', () => {
+  it('a missing cost makes normalization FATAL, never WARN', async () => {
+    const noCost = utf8
+      .split('\n')
+      .filter((l) => !(l.includes(';009512;') && l.includes(';3.02;')))
+      .join('\n');
+    const h = dfpDreHandlers(async () => new Uint8Array(Buffer.from(noCost, 'latin1')), PETRO);
+    const { result } = await executeSourcePipeline('cvm_dfp_dre', 'NONE', h);
+    expect(result.normalization).toBe('FATAL');
+  });
+});
