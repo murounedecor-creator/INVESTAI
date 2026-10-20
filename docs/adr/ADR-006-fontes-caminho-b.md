@@ -1,6 +1,6 @@
 # ADR-006 - Fontes de dados para o agente Acoes/ETFs (caminho B)
 
-Status: PROPOSTO (decisoes tomadas por delegacao em 2026-10-20, aguardando confirmacao do responsavel tecnico)
+Status: APROVADO (decisoes aprovadas pelo responsavel tecnico em 2026-10-20; item 5 segue com TODO)
 
 Origem: pesquisa de fontes de 2026-10-19 (ver planilha fontes-adr-006.xlsx).
 Itens marcados como NAO VERIFICADO nao podem ser usados como base de codigo antes de confirmacao.
