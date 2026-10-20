@@ -1,5 +1,4 @@
-import { calcOk, calcFail, type CalcResult } from '@/src/agents/acoes-etfs/calc-result';
-import type { CalcTrace } from '@/src/agents/acoes-etfs/calc-result';
+import { calcOk, calcFail, type CalcResult, type CalcTrace } from '@/src/agents/acoes-etfs/calc-result';
 
 export const EXPECTED_HEADER = [
   'CNPJ_CIA', 'DT_REFER', 'VERSAO', 'DENOM_CIA', 'CD_CVM', 'GRUPO_DFP',
