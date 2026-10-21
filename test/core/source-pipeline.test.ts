@@ -26,7 +26,7 @@ describe('executeSourcePipeline', () => {
 it('produces effective result on success', async () => {
 const { result, detail } = await executeSourcePipeline(
 'src1',
-'NONE',
+null,
 makeHandlers(),
 );
 
@@ -49,7 +49,7 @@ error_message: 'network error',
 
 const { result, detail } = await executeSourcePipeline(
   'src1',
-  'NONE',
+  null,
   handlers,
 );
 
@@ -71,7 +71,7 @@ error_message: 'bad format',
 
 const { result, detail } = await executeSourcePipeline(
   'src1',
-  'NONE',
+  null,
   handlers,
 );
 
@@ -94,7 +94,7 @@ error_message: 'bad data',
 
 const { result, detail } = await executeSourcePipeline(
   'src1',
-  'NONE',
+  null,
   handlers,
 );
 
@@ -115,7 +115,7 @@ error_message: 'minor issue',
 
 const { result } = await executeSourcePipeline(
   'src1',
-  'NONE',
+  null,
   handlers,
 );
 
@@ -152,7 +152,7 @@ const handlers = makeHandlers({
 await expect(
   executeSourcePipeline(
     'src1',
-    'NONE',
+    null,
     handlers,
     controller.signal,
   ),

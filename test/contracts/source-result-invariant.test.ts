@@ -6,7 +6,7 @@ describe('createSourceResult — raw_hash invariant', () => {
     const sr = createSourceResult({
       source: 'test',
       dispatch: 'DISPATCHED',
-      dispatch_reason: 'NONE',
+      dispatch_reason: null,
       collection_ok: true,
       parse_ok: true,
       normalization: 'OK',
@@ -20,7 +20,7 @@ describe('createSourceResult — raw_hash invariant', () => {
       createSourceResult({
         source: 'test',
         dispatch: 'DISPATCHED',
-        dispatch_reason: 'NONE',
+        dispatch_reason: null,
         collection_ok: true,
         parse_ok: true,
         normalization: 'OK',
@@ -34,7 +34,7 @@ describe('createSourceResult — raw_hash invariant', () => {
       createSourceResult({
         source: 'test',
         dispatch: 'DISPATCHED',
-        dispatch_reason: 'NONE',
+        dispatch_reason: null,
         collection_ok: true,
         parse_ok: true,
         normalization: 'OK',
@@ -47,7 +47,7 @@ describe('createSourceResult — raw_hash invariant', () => {
     const sr = createSourceResult({
       source: 'test',
       dispatch: 'CANCELLED',
-      dispatch_reason: 'TIMEOUT',
+      dispatch_reason: 'GLOBAL_TIMEOUT',
       collection_ok: false,
       parse_ok: false,
       normalization: 'NOT_RUN',
@@ -61,7 +61,7 @@ describe('createSourceResult — raw_hash invariant', () => {
       createSourceResult({
         source: 'test',
         dispatch: 'DISPATCHED',
-        dispatch_reason: 'NONE',
+        dispatch_reason: null,
         collection_ok: false,
         parse_ok: false,
         normalization: 'NOT_RUN',

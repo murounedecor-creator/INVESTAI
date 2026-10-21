@@ -8,4 +8,4 @@ export type DispatchState = 'DISPATCHED' | 'CANCELLED' | 'NOT_DISPATCHED';
  * "TO_SPECIFY" is a specification status, NOT a runtime value.
  * The runtime must NEVER produce the string "TO_SPECIFY".
  */
-export type DispatchReason = string;
+export type DispatchReason = 'GLOBAL_TIMEOUT' | 'BUDGET_EXHAUSTED' | 'INTERNAL_ERROR';

@@ -8,7 +8,7 @@ import {
 import type { SourceStepHandlers } from '@/src/core/source-pipeline';
 import { logServerError } from '@/src/core/log';
 
-const REASON_MAX_DISPATCHES: DispatchReason = 'MAX_DISPATCHES_REACHED';
+const REASON_MAX_DISPATCHES: DispatchReason = 'BUDGET_EXHAUSTED';
 const REASON_GLOBAL_TIMEOUT: DispatchReason = 'GLOBAL_TIMEOUT';
 
 export interface SourceTask {
@@ -101,7 +101,7 @@ async function runWithConcurrencyAndTimeout(
 
       const executionPromise = executeSource(
         task.source,
-        'NONE',
+        null,
         task.handlers,
         abortController.signal
       );

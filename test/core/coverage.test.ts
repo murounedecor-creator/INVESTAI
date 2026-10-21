@@ -6,7 +6,7 @@ function sr(source: string, overrides: Partial<SourceResult> = {}): SourceResult
   return {
     source,
     dispatch: 'DISPATCHED',
-    dispatch_reason: 'NONE',
+    dispatch_reason: null,
     collection_ok: true,
     parse_ok: true,
     normalization: 'OK',

@@ -77,7 +77,7 @@ describe('SourceOrchestrator', () => {
     expect(notDispatched).toHaveLength(2);
     expect(
       notDispatched.every(
-        (item) => item.dispatch_reason === 'MAX_DISPATCHES_REACHED'
+        (item) => item.dispatch_reason === 'BUDGET_EXHAUSTED'
       )
     ).toBe(true);
   });
@@ -93,7 +93,7 @@ describe('SourceOrchestrator', () => {
 
     expect(
       result.results.every(
-        (item) => item.dispatch_reason !== 'TO_SPECIFY'
+        (item) => [null, 'GLOBAL_TIMEOUT', 'BUDGET_EXHAUSTED', 'INTERNAL_ERROR'].includes(item.dispatch_reason)
       )
     ).toBe(true);
   });

@@ -6,7 +6,7 @@ function makeResult(overrides: Partial<SourceResult>): SourceResult {
   return {
     source: 'test',
     dispatch: 'DISPATCHED',
-    dispatch_reason: 'NONE',
+    dispatch_reason: null,
     collection_ok: true,
     parse_ok: true,
     normalization: 'OK',

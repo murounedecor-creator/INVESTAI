@@ -74,7 +74,7 @@ function throwIfAborted(signal?: AbortSignal): void {
  */
 export async function executeSourcePipeline(
   sourceName: string,
-  dispatchReason: DispatchReason,
+  dispatchReason: DispatchReason | null,
   handlers: SourceStepHandlers,
   signal?: AbortSignal
 ): Promise<{

@@ -13,7 +13,7 @@ import { executeSourcePipeline, type SourceStepHandlers } from '@/src/core/sourc
  */
 export async function executeSource(
   sourceName: string,
-  dispatchReason: DispatchReason,
+  dispatchReason: DispatchReason | null,
   handlers: SourceStepHandlers,
   signal?: AbortSignal
 ): Promise<{ result: SourceResult; detail: SourceExecutionDetail }> {

@@ -8,7 +8,7 @@ import type { NormalizationState } from './normalization';
 export interface SourceResult {
   source: string;
   dispatch: DispatchState;
-  dispatch_reason: DispatchReason;
+  dispatch_reason: DispatchReason | null;
   collection_ok: boolean;
   parse_ok: boolean;
   normalization: NormalizationState;
@@ -57,7 +57,7 @@ export interface CoverageResult {
 export function createSourceResult(params: {
   source: string;
   dispatch: DispatchState;
-  dispatch_reason: DispatchReason;
+  dispatch_reason: DispatchReason | null;
   collection_ok: boolean;
   parse_ok: boolean;
   normalization: NormalizationState;
